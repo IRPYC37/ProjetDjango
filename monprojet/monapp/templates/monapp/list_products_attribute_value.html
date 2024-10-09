@@ -1,0 +1,35 @@
+{% extends 'monapp/base.html' %}
+{% block title %}
+  Liste des valeurs d'attributs de produit
+{% endblock %}
+{% block contenu %}
+  <h1>{{ titremenu }}</h1>
+  <table class="table">
+    <thead>
+      <th>Valeur</th>
+      <th>Attribut</th>
+      <th>Position</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      {% for value in products_attribute_value %}
+        <tr>
+          <td>{{ value.value }}</td>
+          <td>{{ value.product_attribute.name }}</td>
+          <td>{{ value.position }}</td>
+          <td>
+            <a href="{% url 'product-attribute-value-detail' value.id %}" class="btn btn-primary mt-2">Détails</a>
+            <a href="{% url 'product-attribute-value-update' value.id %}" class="btn btn-warning mt-2">Modifier</a>
+            <a href="{% url 'product-attribute-value-delete' value.id %}" class="btn btn-danger mt-2">Supprimer</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <!-- Barre de recherche -->
+  <p class="lead mb-3 ml-0">Rechercher une valeur...</p>
+  <form method="GET" action="">
+    <input class="form-control" type="text" name="search" placeholder="Tapez ici votre recherche" value="{{ request.GET.search }}" />
+    <button type="submit" class="btn btn-success mt-2">Rechercher</button>
+  </form>
+{% endblock %}
