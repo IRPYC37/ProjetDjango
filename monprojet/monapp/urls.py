@@ -79,4 +79,9 @@ urlpatterns = [
         ProductAttributeValueDeleteView.as_view(),
         name="product-attribute-value-delete",
     ),
+    path(
+        "orders/",
+        OrdersView.as_view(),
+        name="orders",
+    ),
 ]

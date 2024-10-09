@@ -10,6 +10,7 @@ from django.forms import BaseModelForm
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import user_passes_test
 from .forms import *
 from .models import *
 
@@ -245,7 +246,9 @@ class ProductAttributeValueDetailView(DetailView):
     context_object_name = "product_attribute_value"
 
     def get_context_data(self, **kwargs):
-        context = super(ProductAttributeValueDetailView, self).get_context_data(**kwargs)
+        context = super(ProductAttributeValueDetailView, self).get_context_data(
+            **kwargs
+        )
         context["titremenu"] = "Détail de la valeur d'attribut"
         return context
 
@@ -352,4 +355,14 @@ class DisconnectView(TemplateView):
 
     def get(self, request, **kwargs):
         logout(request)
+        return render(request, self.template_name)
+
+def is_admin(user):
+    return user.is_superuser
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
+class OrdersView(TemplateView):
+    template_name = "monapp/orders.html"
+
+    def post(self, request, **kwargs):
         return render(request, self.template_name)
