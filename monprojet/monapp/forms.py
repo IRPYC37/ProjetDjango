@@ -30,3 +30,8 @@ class ProductAttributeValueForm(forms.ModelForm):
     class Meta:
         model = ProductAttributeValue
         fields = "__all__"
+
+class SupplierForm(forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = "__all__"

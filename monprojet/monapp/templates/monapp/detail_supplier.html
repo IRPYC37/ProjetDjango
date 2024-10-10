@@ -1,0 +1,15 @@
+{% extends 'monapp/base.html' %} {% block title %} Details du fournisseur {% endblock %}
+{% block contenu %}
+    <h1>Details du fournisseur</h1>
+    <p><strong>Name:</strong> {{ supplier.name }}</p>
+    <p><strong>Address:</strong> {{ supplier.address }}</p>
+    <p><strong>Contact:</strong> {{ supplier.contact }}</p>
+    <p><strong>Email:</strong> {{ supplier.email }}</p>
+    <p><strong>Products:</strong></p>
+    <ul>
+        {% for product in supplier.products %}
+            <li>{{ product.name }} - {{ product.price }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'suppliers-list' %}">Retour à la liste des fournisseurs</a>
+{% endblock %}

@@ -26,7 +26,6 @@ Produit : nom, code, etc.
 
 
 class Product(models.Model):
-
     class Meta:
         verbose_name = "Produit"
 
@@ -50,6 +49,7 @@ class Product(models.Model):
     date_creation = models.DateTimeField(
         blank=True, verbose_name="Date création", default=timezone.now
     )
+    suppliers = models.ManyToManyField('Supplier', through='ProductSupplier')
 
     def __str__(self):
         return "{0} {1}".format(self.name, self.code)
@@ -107,3 +107,36 @@ class ProductAttributeValue(models.Model):
 
     def __str__(self):
         return "{0} [{1}]".format(self.value, self.product_attribute)
+
+
+class Order(models.Model):
+    products = models.ManyToManyField(Product, through='OrderProduct')
+
+class Orders(models.Model):
+    products = models.ManyToManyField(Product, through='OrderProduct')
+    # Define other fields for the Orders model
+
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    orders = models.ForeignKey(Orders, on_delete=models.CASCADE)
+    # Define any additional fields for the through model
+
+class Supplier(models.Model):
+    name = models.CharField(max_length=100)
+    contact_info = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+class ProductSupplier(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        unique_together = ('product', 'supplier')
+
+    def __str__(self):
+        return f"{self.product.name} - {self.supplier.name} : {self.price}"

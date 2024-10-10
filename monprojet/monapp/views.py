@@ -366,3 +366,40 @@ class OrdersView(TemplateView):
 
     def post(self, request, **kwargs):
         return render(request, self.template_name)
+
+
+class SupplierListView(ListView):
+    model = Supplier
+    template_name = "monapp/list_suppliers.html"
+    context_object_name = "suppliers"
+
+class SupplierDetailView(DetailView):
+    model = Supplier
+    template_name = "monapp/detail_supplier.html"
+    context_object_name = "supplier"
+
+class SupplierCreateView(CreateView):
+    model = Supplier
+    fields = ['name', 'contact_info']
+    template_name = "monapp/new_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierUpdateView(UpdateView):
+    model = Supplier
+    fields = ['name', 'contact_info']
+    template_name = "monapp/update_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierDeleteView(DeleteView):
+    model = Supplier
+    template_name = "monapp/delete_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierCreateView(CreateView):
+    model = Supplier
+    form_class = SupplierForm
+    template_name = "monapp/new_supplier.html"
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        supplier = form.save()
+        return redirect("suppliers-list", supplier.id)
