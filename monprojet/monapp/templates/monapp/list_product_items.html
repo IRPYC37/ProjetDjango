@@ -8,6 +8,8 @@
       <th>Code</th>
       <th>Produit</th>
       <th>Attributs associés</th>
+      <th>Fournisseur</th>
+      <th>Stock</th>
       <th>Actions</th>
     </thead>
     <tbody>
@@ -22,6 +24,8 @@
               <p>Aucune valeur</p>
             {% endfor %}
           </td>
+          <td>{{ item.supplier.name }}</td>
+          <td>{{ item.stock }}</td>
           <td>
             <a href="{% url 'product-item-detail' item.id %}" class="btn btn-primary mt-2">Détails</a>
             <a href="{% url 'product-item-update' item.id %}" class="btn btn-warning mt-2">Modifier</a>

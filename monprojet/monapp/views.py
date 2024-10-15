@@ -13,6 +13,11 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test
 from .forms import *
 from .models import *
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Supplier, Product, Order, OrderItem
+from .forms import OrderForm, OrderItemForm
 
 # Create your views here.
 
@@ -403,3 +408,33 @@ class SupplierCreateView(CreateView):
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         supplier = form.save()
         return redirect("suppliers-list", supplier.id)
+
+class OrderListView(ListView):
+    model = Order
+    template_name = "monapp/order_list.html"
+    context_object_name = "orders"
+
+    def get_queryset(self):
+        return Order.objects.filter(status='preparation')
+
+class OrderDetailView(DetailView):
+    model = Order
+    template_name = "monapp/order_detail.html"
+    context_object_name = "order"
+
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = "monapp/order_form.html"
+    success_url = reverse_lazy("order-list")
+
+class OrderUpdateView(UpdateView):
+    model = Order
+    form_class = OrderForm
+    template_name = "monapp/order_form.html"
+    success_url = reverse_lazy("order-list")
+
+class OrderDeleteView(DeleteView):
+    model = Order
+    template_name = "monapp/order_confirm_delete.html"
+    success_url = reverse_lazy("order-list")
