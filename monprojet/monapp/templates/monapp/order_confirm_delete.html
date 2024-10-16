@@ -1,0 +1,15 @@
+{% extends 'monapp/base.html' %}
+
+{% block title %}
+  Confirmation de suppression de la commande
+{% endblock %}
+
+{% block contenu %}
+  <h1>Suppression de la commande</h1>
+  <form action="" method="post" novalidate>
+    {% csrf_token %}
+    <p>Êtes-vous sûr de vouloir supprimer la commande {{ object.id }} de {{ object.supplier.name }} ?</p>
+    <button type="submit" class="btn btn-danger mt-2">Confirmer</button>
+    <a href="{% url 'order-detail' object.id %}" class="btn btn-secondary mt-2">Annuler</a>
+  </form>
+{% endblock %}
