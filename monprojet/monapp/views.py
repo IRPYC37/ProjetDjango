@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, Http404
 from django.views.generic import *
 from django.contrib.auth.views import LoginView
@@ -438,3 +438,27 @@ class OrderDeleteView(DeleteView):
     model = Order
     template_name = "monapp/order_confirm_delete.html"
     success_url = reverse_lazy("order-list")
+
+class OrderItemCreateView(CreateView):
+    model = OrderItem
+    form_class = OrderItemForm
+    template_name = "monapp/orderitem_form.html"
+
+    def form_valid(self, form):
+        form.instance.order = get_object_or_404(Order, pk=self.kwargs['pk'])
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order'] = get_object_or_404(Order, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        form.instance.order = get_object_or_404(Order, pk=self.kwargs['pk'])
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})

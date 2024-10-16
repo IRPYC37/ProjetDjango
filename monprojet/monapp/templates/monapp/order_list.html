@@ -9,8 +9,6 @@
       <li>
         <a href="{% url 'order-detail' order.id %}">Commande {{ order.id }} - {{ order.supplier.name }}</a>
         <span>État : {{ order.get_status_display }}</span>
-        <a href="{% url 'order-update' order.id %}" class="btn btn-warning mt-2">Modifier</a>
-        <a href="{% url 'order-delete' order.id %}" class="btn btn-danger mt-2">Supprimer</a>
       </li>
     {% endfor %}
   </ul>

@@ -1,0 +1,15 @@
+{% extends 'monapp/base.html' %}
+
+{% block title %}
+  Ajouter un produit à la commande
+{% endblock %}
+
+{% block contenu %}
+  <h2>Ajouter un produit à la commande {{ order.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success mt-2">Ajouter</button>
+  </form>
+  <a href="{% url 'order-detail' order.id %}" class="btn btn-primary mt-2">Retour aux détails de la commande</a>
+{% endblock %}

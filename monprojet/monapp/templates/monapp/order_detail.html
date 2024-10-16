@@ -1,0 +1,46 @@
+{% extends 'monapp/base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+  Détails de la commande
+{% endblock %}
+
+{% block contenu %}
+  <h2>Détails de la commande {{ order.id }}</h2>
+  <ul>
+    <li><strong>Fournisseur :</strong> {{ order.supplier.name }}</li>
+    <li><strong>Date de commande :</strong> {{ order.date_ordered }}</li>
+    <li><strong>État :</strong> {{ order.get_status_display }}</li>
+    {% if order.date_received %}
+      <li><strong>Date de réception :</strong> {{ order.date_received }}</li>
+    {% endif %}
+  </ul>
+  <div style="display:flex; justify-content:space-between;">
+    <h3>Produits commandés</h3>
+    <a href="{% url 'orderitem-add' order.id %}" class="btn btn-success mt-2">Ajouter un produit</a>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th>Quantité</th>
+        <th>Prix unitaire</th>
+        <th>Prix total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.product.price_ht }}</td>
+          <td>{{ item.quantity|multiply:item.product.price_ht }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
+  <a href="{% url 'order-update' order.id %}" class="btn btn-warning mt-2">Modifier</a>
+  <a href="{% url 'order-delete' order.id %}" class="btn btn-danger mt-2">Supprimer</a>
+{% endblock %}

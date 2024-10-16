@@ -125,4 +125,7 @@ urlpatterns = [
         OrderDeleteView.as_view(),
         name='order-delete'
     ),
+    path('orders/<int:pk>/add-item/',
+        OrderItemCreateView.as_view(),
+        name='orderitem-add'),
 ]
