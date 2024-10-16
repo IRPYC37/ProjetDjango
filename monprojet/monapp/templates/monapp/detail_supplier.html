@@ -2,14 +2,9 @@
 {% block contenu %}
     <h1>Details du fournisseur</h1>
     <p><strong>Name:</strong> {{ supplier.name }}</p>
-    <p><strong>Address:</strong> {{ supplier.address }}</p>
-    <p><strong>Contact:</strong> {{ supplier.contact }}</p>
-    <p><strong>Email:</strong> {{ supplier.email }}</p>
-    <p><strong>Products:</strong></p>
-    <ul>
-        {% for product in supplier.products %}
-            <li>{{ product.name }} - {{ product.price }}</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'suppliers-list' %}">Retour à la liste des fournisseurs</a>
+    <p><strong>Contact info:</strong> {{ supplier.contact_info }}</p>
+   
+    <a href="{% url 'suppliers-list' %}" class="btn btn-primary mt-2">Retour à la liste des fournisseurs</a>
+    <a href="{% url 'supplier-update' supplier.id %}" class="btn btn-warning mt-2">Modifier</a>
+    <a href="{% url 'supplier-delete' supplier.id %}" class="btn btn-danger mt-2">Supprimer</a>
 {% endblock %}
