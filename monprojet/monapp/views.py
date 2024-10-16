@@ -415,7 +415,7 @@ class OrderListView(ListView):
     context_object_name = "orders"
 
     def get_queryset(self):
-        return Order.objects.filter(status='preparation')
+        return Order.objects.all()
 
 class OrderDetailView(DetailView):
     model = Order
