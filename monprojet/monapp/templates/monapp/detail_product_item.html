@@ -9,6 +9,8 @@
   <h2>{{ productitem.code }}</h2>
   <ul>
     <li>Produit : {{ productitem.product }}</li>
+    <li>Fournisseur : {{ productitem.supplier.name }}</li>
+    <li>Stock : {{ productitem.stock }}</li>
     {% for attribute in attributes %}
       <li>{{ attribute.product_attribute.name }} : {{ attribute.value }}</li>
     {% empty %}

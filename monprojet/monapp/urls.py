@@ -79,4 +79,50 @@ urlpatterns = [
         ProductAttributeValueDeleteView.as_view(),
         name="product-attribute-value-delete",
     ),
+    path(
+        "orders/",
+        OrderListView.as_view(),
+        name="order-list",
+    ),
+        path(
+        "suppliers/",
+        SupplierListView.as_view(),
+        name="suppliers-list",
+    ),
+    path(
+        "supplier/add/",
+        SupplierCreateView.as_view(),
+        name="supplier-add",
+    ),
+    path(
+        "supplier/<pk>/update/",
+        SupplierUpdateView.as_view(),
+        name="supplier-update",
+    ),
+    path(
+        "supplier/<pk>/delete/",
+        SupplierDeleteView.as_view(),
+        name="supplier-delete",
+    ),
+    path(
+        "supplier/<pk>/",
+        SupplierDetailView.as_view(),
+        name="supplier-detail",
+    ),
+    path('orders/new/',
+        OrderCreateView.as_view(),
+        name='order-add'
+    ),
+    path('orders/<pk>/',
+        OrderDetailView.as_view(),
+        name='order-detail'
+    ),
+    path('orders/<pk>/update/',
+        OrderUpdateView.as_view(),
+        name='order-update'
+    ),
+    path('orders/<pk>/delete/',
+        OrderDeleteView.as_view(),
+        name='order-delete'
+    ),
 ]

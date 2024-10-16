@@ -4,6 +4,18 @@
   <form action="" method="post" novalidate>
     {% csrf_token %}
     {{ form.as_p }}
+    <div class="form-group">
+      <label for="supplier">Fournisseur</label>
+      <select name="supplier" id="supplier" class="form-control">
+        {% for supplier in suppliers %}
+          <option value="{{ supplier.id }}" {% if supplier.id == productitem.supplier.id %}selected{% endif %}>{{ supplier.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="price">Prix</label>
+      <input type="number" name="price" id="price" class="form-control" step="0.01" value="{{ productitem.price }}">
+    </div>
     <button type="submit" class="btn btn-success mt-2">Modifier</button>
   </form>
 {% endblock %}

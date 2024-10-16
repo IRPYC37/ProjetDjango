@@ -10,8 +10,14 @@ from django.forms import BaseModelForm
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import user_passes_test
 from .forms import *
 from .models import *
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import Supplier, Product, Order, OrderItem
+from .forms import OrderForm, OrderItemForm
 
 # Create your views here.
 
@@ -245,7 +251,9 @@ class ProductAttributeValueDetailView(DetailView):
     context_object_name = "product_attribute_value"
 
     def get_context_data(self, **kwargs):
-        context = super(ProductAttributeValueDetailView, self).get_context_data(**kwargs)
+        context = super(ProductAttributeValueDetailView, self).get_context_data(
+            **kwargs
+        )
         context["titremenu"] = "Détail de la valeur d'attribut"
         return context
 
@@ -353,3 +361,80 @@ class DisconnectView(TemplateView):
     def get(self, request, **kwargs):
         logout(request)
         return render(request, self.template_name)
+
+def is_admin(user):
+    return user.is_superuser
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
+class OrdersView(TemplateView):
+    template_name = "monapp/orders.html"
+
+    def post(self, request, **kwargs):
+        return render(request, self.template_name)
+
+
+class SupplierListView(ListView):
+    model = Supplier
+    template_name = "monapp/list_suppliers.html"
+    context_object_name = "suppliers"
+
+class SupplierDetailView(DetailView):
+    model = Supplier
+    template_name = "monapp/detail_supplier.html"
+    context_object_name = "supplier"
+
+class SupplierCreateView(CreateView):
+    model = Supplier
+    fields = ['name', 'contact_info']
+    template_name = "monapp/new_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierUpdateView(UpdateView):
+    model = Supplier
+    fields = ['name', 'contact_info']
+    template_name = "monapp/update_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierDeleteView(DeleteView):
+    model = Supplier
+    template_name = "monapp/delete_supplier.html"
+    success_url = reverse_lazy("supplier-list")
+
+class SupplierCreateView(CreateView):
+    model = Supplier
+    form_class = SupplierForm
+    template_name = "monapp/new_supplier.html"
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        supplier = form.save()
+        return redirect("suppliers-list", supplier.id)
+
+class OrderListView(ListView):
+    model = Order
+    template_name = "monapp/order_list.html"
+    context_object_name = "orders"
+
+    def get_queryset(self):
+        return Order.objects.filter(status='preparation')
+
+class OrderDetailView(DetailView):
+    model = Order
+    template_name = "monapp/order_detail.html"
+    context_object_name = "order"
+
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = "monapp/order_form.html"
+    success_url = reverse_lazy("order-list")
+
+class OrderUpdateView(UpdateView):
+    model = Order
+    form_class = OrderForm
+    template_name = "monapp/order_update.html"
+    success_url = reverse_lazy("order-list")
+
+class OrderDeleteView(DeleteView):
+    model = Order
+    template_name = "monapp/order_confirm_delete.html"
+    success_url = reverse_lazy("order-list")

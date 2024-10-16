@@ -1,0 +1,18 @@
+{% extends 'monapp/base.html' %}
+{% block title %}
+  Liste des commandes
+{% endblock %}
+{% block contenu %}
+  <h2>Liste des commandes</h2>
+  <ul>
+    {% for order in orders %}
+      <li>
+        <a href="{% url 'order-detail' order.id %}">Commande {{ order.id }} - {{ order.supplier.name }}</a>
+        <span>État : {{ order.get_status_display }}</span>
+        <a href="{% url 'order-update' order.id %}" class="btn btn-warning mt-2">Modifier</a>
+        <a href="{% url 'order-delete' order.id %}" class="btn btn-danger mt-2">Supprimer</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'order-add' %}">Ajouter une nouvelle commande</a>
+{% endblock %}
