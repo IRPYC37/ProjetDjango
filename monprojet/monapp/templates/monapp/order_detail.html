@@ -17,7 +17,9 @@
   </ul>
   <div style="display:flex; justify-content:space-between;">
     <h3>Produits commandés</h3>
-    <a href="{% url 'orderitem-add' order.id %}" class="btn btn-success mt-2">Ajouter un produit</a>
+    {% if order.status == 'preparation' %}
+      <a href="{% url 'orderitem-add' order.id %}" class="btn btn-success mt-2">Ajouter un produit</a>
+    {% endif %}
   </div>
   <table class="table">
     <thead>
