@@ -431,7 +431,7 @@ class OrderCreateView(CreateView):
 class OrderUpdateView(UpdateView):
     model = Order
     form_class = OrderForm
-    template_name = "monapp/order_form.html"
+    template_name = "monapp/order_update.html"
     success_url = reverse_lazy("order-list")
 
 class OrderDeleteView(DeleteView):

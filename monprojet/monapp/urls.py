@@ -81,7 +81,7 @@ urlpatterns = [
     ),
     path(
         "orders/",
-        OrdersView.as_view(),
+        OrderListView.as_view(),
         name="order-list",
     ),
         path(
@@ -108,5 +108,21 @@ urlpatterns = [
         "supplier/<pk>/",
         SupplierDetailView.as_view(),
         name="supplier-detail",
+    ),
+    path('orders/new/',
+        OrderCreateView.as_view(),
+        name='order-add'
+    ),
+    path('orders/<pk>/',
+        OrderDetailView.as_view(),
+        name='order-detail'
+    ),
+    path('orders/<pk>/update/',
+        OrderUpdateView.as_view(),
+        name='order-update'
+    ),
+    path('orders/<pk>/delete/',
+        OrderDeleteView.as_view(),
+        name='order-delete'
     ),
 ]
