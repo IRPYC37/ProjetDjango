@@ -5,7 +5,7 @@
 {% block contenu %}
     <h1>Nos Fournisseurs</h1>
     {% if user.is_authenticated %}
-        <a href="{% url 'supplier-add' %}">Ajouter un fournisseurs</a>
+        <a href="{% url 'supplier-add' %}" class="btn btn-primary">Ajouter un fournisseurs</a>
     {% endif %}
     <ul>
         {% for supplier in suppliers %}

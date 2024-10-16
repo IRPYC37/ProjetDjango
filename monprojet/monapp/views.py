@@ -387,18 +387,18 @@ class SupplierCreateView(CreateView):
     model = Supplier
     fields = ['name', 'contact_info']
     template_name = "monapp/new_supplier.html"
-    success_url = reverse_lazy("supplier-list")
+    success_url = reverse_lazy("suppliers-list")
 
 class SupplierUpdateView(UpdateView):
     model = Supplier
     fields = ['name', 'contact_info']
     template_name = "monapp/update_supplier.html"
-    success_url = reverse_lazy("supplier-list")
+    success_url = reverse_lazy("suppliers-list")
 
 class SupplierDeleteView(DeleteView):
     model = Supplier
     template_name = "monapp/delete_supplier.html"
-    success_url = reverse_lazy("supplier-list")
+    success_url = reverse_lazy("suppliers-list")
 
 class SupplierCreateView(CreateView):
     model = Supplier
@@ -407,7 +407,7 @@ class SupplierCreateView(CreateView):
 
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         supplier = form.save()
-        return redirect("suppliers-list", supplier.id)
+        return redirect("suppliers-list")
 
 class OrderListView(ListView):
     model = Order
