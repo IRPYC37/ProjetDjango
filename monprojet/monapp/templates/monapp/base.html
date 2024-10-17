@@ -19,6 +19,7 @@
         {% block menu %}
           <a href="{% url 'home' %}">Accueil</a>
           <a href="{% url 'product-list' %}">Produits</a>
+          <a href="{% url 'stock' %}">Nos stocks</a>
           <a href="{% url 'product-item-list' %}">Déclinaisons de produit</a>
           <a href="{% url 'product-attribute-list' %}">Attributs de produit</a>
           <a href="{% url 'product-attribute-value-list' %}">Valeur d'attributs de produit</a>
@@ -42,12 +43,5 @@
         {% endblock %}
       </div>
     </main>
-    <footer class="footer" style="position:fixed;bottom:0;width:100%;">
-      <div class="container">
-        <p>
-          &copy; Copyright{% now 'Y' %}by Cyprien & Liam Production Copyrigh (c)
-        </p>
-      </div>
-    </footer>
   </body>
 </html>

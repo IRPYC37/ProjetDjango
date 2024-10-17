@@ -32,12 +32,15 @@ class ProductAttributeValueForm(forms.ModelForm):
         fields = "__all__"
 
 class SupplierForm(forms.ModelForm):
+    products = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = Supplier
-        fields = "__all__"
-
-from django import forms
-from .models import Order, OrderItem
+        fields = ['name', 'contact_info', 'description', 'products']
 
 class OrderForm(forms.ModelForm):
     class Meta:

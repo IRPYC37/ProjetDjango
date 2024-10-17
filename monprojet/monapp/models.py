@@ -1,5 +1,8 @@
 from django.db import models
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.generic import UpdateView
 
 PRODUCT_STATUS = ((0, "Offline"), (1, "Online"), (2, "Out of stock"))
 
@@ -46,7 +49,6 @@ class Product(models.Model):
 
 
 class ProductItem(models.Model):
-
     class Meta:
         verbose_name = "Déclinaison Produit"
 
@@ -56,6 +58,7 @@ class ProductItem(models.Model):
     attributes = models.ManyToManyField(
         "ProductAttributeValue", related_name="product_item", blank=True
     )
+    stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return "{0} {1}".format(self.color, self.code)
@@ -96,6 +99,8 @@ class ProductAttributeValue(models.Model):
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
     contact_info = models.TextField()
+    description = models.TextField(blank=True)
+    products = models.ManyToManyField('Product', related_name='supplied_by', blank=True)
 
     def __str__(self):
         return self.name
@@ -129,8 +134,29 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"{self.quantity} of {self.product.name} in order {self.order.id}"
+        return f"{self.quantity} of {self.product.product.name} from order {self.order.id}"
+
+class OrderReceiveView(UpdateView):
+    model = Order
+    fields = ['status']
+    template_name = 'monapp/order_receive.html'
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        if order.status == 'received':
+            self.update_stock(order)
+        order.save()
+        return super().form_valid(form)
+
+    def update_stock(self, order):
+        for item in order.items.all():
+            product_item = get_object_or_404(ProductItem, product=item.product, supplier=order.supplier)
+            product_item.stock += item.quantity
+            product_item.save()
+
+    def get_success_url(self):
+        return reverse_lazy('order-detail', kwargs={'pk': self.object.pk})

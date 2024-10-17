@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.forms import BaseModelForm
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test
@@ -383,17 +383,19 @@ class SupplierDetailView(DetailView):
     template_name = "monapp/detail_supplier.html"
     context_object_name = "supplier"
 
-class SupplierCreateView(CreateView):
-    model = Supplier
-    fields = ['name', 'contact_info']
-    template_name = "monapp/new_supplier.html"
-    success_url = reverse_lazy("suppliers-list")
 
 class SupplierUpdateView(UpdateView):
     model = Supplier
-    fields = ['name', 'contact_info']
+    form_class = SupplierForm
     template_name = "monapp/update_supplier.html"
-    success_url = reverse_lazy("suppliers-list")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.instance.products.set(form.cleaned_data['products'])
+        return response
+
+    def get_success_url(self):
+        return reverse('supplier-detail', kwargs={'pk': self.object.pk})
 
 class SupplierDeleteView(DeleteView):
     model = Supplier
@@ -405,9 +407,13 @@ class SupplierCreateView(CreateView):
     form_class = SupplierForm
     template_name = "monapp/new_supplier.html"
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        supplier = form.save()
-        return redirect("suppliers-list")
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.instance.products.set(form.cleaned_data['products'])
+        return response
+
+    def get_success_url(self):
+        return reverse('suppliers-list')
 
 class OrderListView(ListView):
     model = Order
@@ -462,3 +468,26 @@ class OrderItemCreateView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
+
+class StockListView(ListView):
+    model = ProductItem
+    template_name = "monapp/stock.html"
+    context_object_name = "stock"
+
+    def get_queryset(self):
+        # Obtenir tous les produits
+        product_items = ProductItem.objects.all()
+
+        # Calculer le stock pour chaque produit
+        for product_item in product_items:
+            received_orders = OrderItem.objects.filter(
+                product=product_item, order__status='received'
+            )
+            product_item.stock = sum(item.quantity for item in received_orders)
+
+        return product_items
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_stock'] = sum([item.stock for item in context['stock']])
+        return context

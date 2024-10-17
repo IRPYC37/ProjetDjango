@@ -128,4 +128,7 @@ urlpatterns = [
     path('orders/<int:pk>/add-item/',
         OrderItemCreateView.as_view(),
         name='orderitem-add'),
+    path('stock/',
+        StockListView.as_view(),
+        name='stock'),
 ]
