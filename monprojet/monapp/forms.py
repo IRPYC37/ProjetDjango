@@ -11,7 +11,7 @@ class ContactUsForm(forms.Form):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        exclude = ["price_ttc", "status"]
+        fields = ['name', 'code', 'description', 'price', 'price_ht', 'price_ttc']
 
 
 class ProductItemForm(forms.ModelForm):
@@ -34,17 +34,27 @@ class ProductAttributeValueForm(forms.ModelForm):
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = "__all__"
-
-from django import forms
-from .models import Order, OrderItem
+        fields = ['name', 'contact_info', 'description']
 
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['supplier', 'status']
+        fields = ['supplier']
 
 class OrderItemForm(forms.ModelForm):
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity']
+
+    def __init__(self, *args, **kwargs):
+        supplier = kwargs.pop('supplier', None)
+        super().__init__(*args, **kwargs)
+        if supplier:
+            self.fields['product'].queryset = Product.objects.filter(suppliers=supplier)
+
+class ProductSupplierForm(forms.ModelForm):
+    class Meta:
+        model = ProductSupplier
+        fields = ['product', 'price']
+
+ProductSupplierFormSet = forms.inlineformset_factory(Supplier, ProductSupplier, form=ProductSupplierForm, extra=1, can_delete=True)

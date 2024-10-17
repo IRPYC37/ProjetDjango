@@ -1,12 +1,30 @@
 {% extends 'monapp/base.html' %}
 {% block title %}
-  Mes commandes en cours
+  Créer un nouveau fournisseur
 {% endblock %}
 {% block contenu %}
 <h2>Créer un nouveau fournisseur</h2>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Créer</button>
+    <div class="container">
+        {{ form.as_p }}
+    </div>
+    <div class="container">
+        {{ product_supplier_formset.management_form }}
+        {% for form in product_supplier_formset %}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.product.label_tag }} {{ form.product }}
+                </div>
+                <div class="form-group col-md-4">
+                    {{ form.price.label_tag }} {{ form.price }}
+                </div>
+                <div class="form-group col-md-2">
+                    {{ form.DELETE.label_tag }} {{ form.DELETE }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button class="btn btn-success" type="submit">Créer</button>
 </form>
 {% endblock %}

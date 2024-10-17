@@ -1,10 +1,8 @@
 {% extends 'monapp/base.html' %}
 {% load custom_filters %}
-
 {% block title %}
   Détails de la commande
 {% endblock %}
-
 {% block contenu %}
   <h2>Détails de la commande {{ order.id }}</h2>
   <ul>
@@ -41,8 +39,13 @@
       {% endfor %}
     </tbody>
   </table>
-
   <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
   <a href="{% url 'order-update' order.id %}" class="btn btn-warning mt-2">Modifier</a>
   <a href="{% url 'order-delete' order.id %}" class="btn btn-danger mt-2">Supprimer</a>
+  {% if order.status == 'preparation' %}
+    <form method="post" action="{% url 'order-receive' order.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success mt-2">Marquer comme reçu</button>
+    </form>
+  {% endif %}
 {% endblock %}

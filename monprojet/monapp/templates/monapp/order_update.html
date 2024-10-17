@@ -1,9 +1,7 @@
 {% extends 'monapp/base.html' %}
-
 {% block title %}
   Modification de la commande
 {% endblock %}
-
 {% block contenu %}
   <h2>Modifier la commande</h2>
   <form method="post">
@@ -12,4 +10,10 @@
     <button type="submit" class="btn btn-success mt-2">Modifier</button>
   </form>
   <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
+  {% if order.status == 'preparation' %}
+    <form method="post" action="{% url 'order-receive' order.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success mt-2">Marquer comme reçu</button>
+    </form>
+  {% endif %}
 {% endblock %}

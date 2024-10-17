@@ -1,15 +1,12 @@
 {% extends 'monapp/base.html' %}
-
 {% block title %}
-  Nouvelle commande
+  Créer une nouvelle commande
 {% endblock %}
-
 {% block contenu %}
-  <h2>Créer une nouvelle commande</h2>
-  <form method="post">
+<h2>Créer une nouvelle commande</h2>
+<form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success mt-2">Créer</button>
-  </form>
-  <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
+    {{ order_form.as_p }}
+    <button type="submit">Créer</button>
+</form>
 {% endblock %}

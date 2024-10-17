@@ -1,0 +1,35 @@
+{% extends 'monapp/base.html' %}
+{% block title %}
+  Gestion des stocks
+{% endblock %}
+{% block contenu %}
+  <h2>{{ titreh1 }}</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Produit</th>
+        <th>Fournisseur</th>
+        <th>Stock</th>
+        <th>Attributs associés</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in product_items %}
+        <tr>
+          <td>{{ item.code }}</td>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.supplier.name }}</td>
+          <td>{{ item.stock }}</td>
+          <td>
+            {% for attribute in item.attributes.all %}
+              <p>{{ attribute.product_attribute.name }} : {{ attribute.value }}</p>
+            {% empty %}
+              <p>Aucun attribut associé</p>
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

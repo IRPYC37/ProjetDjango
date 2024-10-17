@@ -1,10 +1,23 @@
-{% extends 'monapp/base.html' %} {% block title %} Details du fournisseur {% endblock %}
+{% extends 'monapp/base.html' %}
+{% block title %}
+  Détails du fournisseur
+{% endblock %}
 {% block contenu %}
-    <h1>Details du fournisseur</h1>
-    <p><strong>Name:</strong> {{ supplier.name }}</p>
-    <p><strong>Contact info:</strong> {{ supplier.contact_info }}</p>
-   
-    <a href="{% url 'suppliers-list' %}" class="btn btn-primary mt-2">Retour à la liste des fournisseurs</a>
-    <a href="{% url 'supplier-update' supplier.id %}" class="btn btn-warning mt-2">Modifier</a>
-    <a href="{% url 'supplier-delete' supplier.id %}" class="btn btn-danger mt-2">Supprimer</a>
+  <h1>Détails du fournisseur</h1>
+  <p><strong>Nom :</strong> {{ supplier.name }}</p>
+  <p><strong>Contact info :</strong> {{ supplier.contact_info }}</p>
+  <p><strong>Description :</strong> {{ supplier.description }}</p>
+
+  <h2>Produits vendus par ce fournisseur</h2>
+  <ul>
+    {% for product_supplier in products %}
+      <li>{{ product_supplier.product.name }} - Prix : {{ product_supplier.price }}</li>
+    {% empty %}
+      <li>Aucun produit associé à ce fournisseur.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'suppliers-list' %}" class="btn btn-primary mt-2">Retour à la liste des fournisseurs</a>
+  <a href="{% url 'supplier-update' supplier.id %}" class="btn btn-warning mt-2">Modifier</a>
+  <a href="{% url 'supplier-delete' supplier.id %}" class="btn btn-danger mt-2">Supprimer</a>
 {% endblock %}

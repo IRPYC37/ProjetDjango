@@ -74,7 +74,7 @@ class ProductCreateView(CreateView):
     form_class = ProductForm
     template_name = "monapp/new_product.html"
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+    def form_valid(self, form):
         product = form.save()
         return redirect("product-detail", product.id)
 
@@ -383,17 +383,34 @@ class SupplierDetailView(DetailView):
     template_name = "monapp/detail_supplier.html"
     context_object_name = "supplier"
 
-class SupplierCreateView(CreateView):
-    model = Supplier
-    fields = ['name', 'contact_info']
-    template_name = "monapp/new_supplier.html"
-    success_url = reverse_lazy("suppliers-list")
+    def get_context_data(self, **kwargs):
+        context = super(SupplierDetailView, self).get_context_data(**kwargs)
+        context["products"] = ProductSupplier.objects.filter(supplier=self.object)
+        return context
 
 class SupplierUpdateView(UpdateView):
     model = Supplier
-    fields = ['name', 'contact_info']
+    form_class = SupplierForm
     template_name = "monapp/update_supplier.html"
-    success_url = reverse_lazy("suppliers-list")
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['product_supplier_formset'] = ProductSupplierFormSet(self.request.POST, instance=self.object)
+        else:
+            data['product_supplier_formset'] = ProductSupplierFormSet(instance=self.object)
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        product_supplier_formset = context['product_supplier_formset']
+        if form.is_valid() and product_supplier_formset.is_valid():
+            self.object = form.save()
+            product_supplier_formset.instance = self.object
+            product_supplier_formset.save()
+            return redirect("supplier-detail", pk=self.object.pk)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 class SupplierDeleteView(DeleteView):
     model = Supplier
@@ -405,9 +422,24 @@ class SupplierCreateView(CreateView):
     form_class = SupplierForm
     template_name = "monapp/new_supplier.html"
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        supplier = form.save()
-        return redirect("suppliers-list")
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['product_supplier_formset'] = ProductSupplierFormSet(self.request.POST)
+        else:
+            data['product_supplier_formset'] = ProductSupplierFormSet()
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        product_supplier_formset = context['product_supplier_formset']
+        if form.is_valid() and product_supplier_formset.is_valid():
+            self.object = form.save()
+            product_supplier_formset.instance = self.object
+            product_supplier_formset.save()
+            return redirect("suppliers-list")
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 class OrderListView(ListView):
     model = Order
@@ -428,11 +460,29 @@ class OrderCreateView(CreateView):
     template_name = "monapp/order_form.html"
     success_url = reverse_lazy("order-list")
 
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        order = form.save()
+        return redirect("order-detail", order.id)
+
 class OrderUpdateView(UpdateView):
     model = Order
     form_class = OrderForm
-    template_name = "monapp/order_update.html"
-    success_url = reverse_lazy("order-list")
+    template_name = 'monapp/order_update.html'
+
+    def form_valid(self, form):
+        order = form.save()
+        if order.status == 'reçu':  # Vérifiez si l'état est "Reçu"
+            self.update_stock(order)
+        return super().form_valid(form)
+
+    def update_stock(self, order):
+        for item in order.items.all():
+            product_item = get_object_or_404(ProductItem, product=item.product, supplier=order.supplier)
+            product_item.stock += item.quantity
+            product_item.save()
+
+    def get_success_url(self):
+        return reverse_lazy('order-detail', kwargs={'pk': self.object.pk})
 
 class OrderDeleteView(DeleteView):
     model = Order
@@ -444,8 +494,9 @@ class OrderItemCreateView(CreateView):
     form_class = OrderItemForm
     template_name = "monapp/orderitem_form.html"
 
-    def form_valid(self, form):
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
         form.instance.order = get_object_or_404(Order, pk=self.kwargs['pk'])
+        form.instance.product = get_object_or_404(Product, pk=form.cleaned_data['product'].id, suppliers=form.instance.order.supplier)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -456,9 +507,34 @@ class OrderItemCreateView(CreateView):
     def get_success_url(self):
         return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
 
+class StockView(TemplateView):
+    template_name = "monapp/stock.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(StockView, self).get_context_data(**kwargs)
+        context["titreh1"] = "Stock"
+        return context
+
+    def post(self, request, **kwargs):
+        return render(request, self.template_name)
+
+class OrderReceiveView(UpdateView):
+    model = Order
+    fields = ['status']
+    template_name = 'monapp/order_receive.html'
+
     def form_valid(self, form):
-        form.instance.order = get_object_or_404(Order, pk=self.kwargs['pk'])
+        order = form.save(commit=False)
+        order.status = 'reçu'
+        order.save()
+        self.update_stock(order)
         return super().form_valid(form)
 
+    def update_stock(self, order):
+        for item in order.items.all():
+            product_item = get_object_or_404(ProductItem, product=item.product, supplier=order.supplier)
+            product_item.stock += item.quantity
+            product_item.save()
+
     def get_success_url(self):
-        return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
+        return reverse_lazy('order-detail', kwargs={'pk': self.object.pk})
