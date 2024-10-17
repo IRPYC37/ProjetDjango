@@ -20,7 +20,8 @@ from .models import Supplier, Product, Order, OrderItem
 from .forms import OrderForm, OrderItemForm
 
 # Create your views here.
-
+def is_admin(user):
+    return user.is_superuser
 
 class HomeView(TemplateView):
     template_name = "monapp/home.html"
@@ -34,7 +35,7 @@ class HomeView(TemplateView):
     def post(self, request, **kwargs):
         return render(request, self.template_name)
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductListView(ListView):
     model = Product
     template_name = "monapp/list_products.html"
@@ -55,7 +56,7 @@ class ProductListView(ListView):
         context["titremenu"] = "Liste des produits"
         return context
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductDetailView(DetailView):
     model = Product
     template_name = "monapp/detail_product.html"
@@ -69,6 +70,7 @@ class ProductDetailView(DetailView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductCreateView(CreateView):
     model = Product
     form_class = ProductForm
@@ -81,6 +83,7 @@ class ProductCreateView(CreateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
@@ -93,12 +96,13 @@ class ProductUpdateView(UpdateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductDeleteView(DeleteView):
     model = Product
     template_name = "monapp/delete_product.html"
     success_url = reverse_lazy("product-list")
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductItemListView(ListView):
     model = ProductItem
     template_name = "monapp/list_product_items.html"
@@ -115,7 +119,7 @@ class ProductItemListView(ListView):
         context["titremenu"] = "Liste des déclinaisons"
         return context
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductItemDetailView(DetailView):
     model = ProductItem
     template_name = "monapp/detail_product_item.html"
@@ -131,6 +135,7 @@ class ProductItemDetailView(DetailView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductItemCreateView(CreateView):
     model = ProductItem
     form_class = ProductItemForm
@@ -143,6 +148,7 @@ class ProductItemCreateView(CreateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductItemUpdateView(UpdateView):
     model = ProductItem
     form_class = ProductItemForm
@@ -155,12 +161,13 @@ class ProductItemUpdateView(UpdateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductItemDeleteView(DeleteView):
     model = ProductItem
     template_name = "monapp/delete_product_item.html"
     success_url = reverse_lazy("product-item-list")
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeListView(ListView):
     model = ProductAttribute
     template_name = "monapp/list_product_attributes.html"
@@ -177,7 +184,7 @@ class ProductAttributeListView(ListView):
         context["titremenu"] = "Liste des attributs"
         return context
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeDetailView(DetailView):
     model = ProductAttribute
     template_name = "monapp/detail_product_attribute.html"
@@ -194,6 +201,7 @@ class ProductAttributeDetailView(DetailView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeCreateView(CreateView):
     model = ProductAttribute
     form_class = ProductAttributeForm
@@ -206,6 +214,7 @@ class ProductAttributeCreateView(CreateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeUpdateView(UpdateView):
     model = ProductAttribute
     form_class = ProductAttributeForm
@@ -218,12 +227,13 @@ class ProductAttributeUpdateView(UpdateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeDeleteView(DeleteView):
     model = ProductAttribute
     template_name = "monapp/delete_product_attribute.html"
     success_url = reverse_lazy("product-attribute-list")
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeValueVListView(ListView):
     model = ProductAttributeValue
     template_name = "monapp/list_products_attribute_value.html"
@@ -244,7 +254,7 @@ class ProductAttributeValueVListView(ListView):
         context["titremenu"] = "Liste des attributs value"
         return context
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeValueDetailView(DetailView):
     model = ProductAttributeValue
     template_name = "monapp/detail_product_attribute_value.html"
@@ -257,7 +267,7 @@ class ProductAttributeValueDetailView(DetailView):
         context["titremenu"] = "Détail de la valeur d'attribut"
         return context
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeValueCreateView(CreateView):
     model = ProductAttributeValue
     form_class = ProductAttributeValueForm
@@ -270,6 +280,7 @@ class ProductAttributeValueCreateView(CreateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeValueUpdateView(UpdateView):
     model = ProductAttributeValue
     form_class = ProductAttributeValueForm
@@ -282,6 +293,7 @@ class ProductAttributeValueUpdateView(UpdateView):
 
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class ProductAttributeValueDeleteView(DeleteView):
     model = ProductAttributeValue
     template_name = "monapp/delete_product_attribute_value.html"
@@ -362,8 +374,7 @@ class DisconnectView(TemplateView):
         logout(request)
         return render(request, self.template_name)
 
-def is_admin(user):
-    return user.is_superuser
+
 
 @method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrdersView(TemplateView):
@@ -372,34 +383,44 @@ class OrdersView(TemplateView):
     def post(self, request, **kwargs):
         return render(request, self.template_name)
 
-
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierListView(ListView):
     model = Supplier
     template_name = "monapp/list_suppliers.html"
     context_object_name = "suppliers"
-
+    
+    
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierDetailView(DetailView):
     model = Supplier
     template_name = "monapp/detail_supplier.html"
     context_object_name = "supplier"
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierCreateView(CreateView):
     model = Supplier
     fields = ['name', 'contact_info']
     template_name = "monapp/new_supplier.html"
     success_url = reverse_lazy("suppliers-list")
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierUpdateView(UpdateView):
     model = Supplier
     fields = ['name', 'contact_info']
     template_name = "monapp/update_supplier.html"
     success_url = reverse_lazy("suppliers-list")
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierDeleteView(DeleteView):
     model = Supplier
     template_name = "monapp/delete_supplier.html"
     success_url = reverse_lazy("suppliers-list")
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class SupplierCreateView(CreateView):
     model = Supplier
     form_class = SupplierForm
@@ -409,6 +430,8 @@ class SupplierCreateView(CreateView):
         supplier = form.save()
         return redirect("suppliers-list")
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderListView(ListView):
     model = Order
     template_name = "monapp/order_list.html"
@@ -417,28 +440,39 @@ class OrderListView(ListView):
     def get_queryset(self):
         return Order.objects.all()
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderDetailView(DetailView):
     model = Order
     template_name = "monapp/order_detail.html"
     context_object_name = "order"
 
+
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderCreateView(CreateView):
     model = Order
     form_class = OrderForm
     template_name = "monapp/order_form.html"
     success_url = reverse_lazy("order-list")
 
+
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderUpdateView(UpdateView):
     model = Order
     form_class = OrderForm
     template_name = "monapp/order_update.html"
     success_url = reverse_lazy("order-list")
 
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderDeleteView(DeleteView):
     model = Order
     template_name = "monapp/order_confirm_delete.html"
     success_url = reverse_lazy("order-list")
 
+
+@method_decorator(user_passes_test(is_admin), name="dispatch")
 class OrderItemCreateView(CreateView):
     model = OrderItem
     form_class = OrderItemForm
