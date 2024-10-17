@@ -39,7 +39,7 @@ class Product(models.Model):
     suppliers = models.ManyToManyField('Supplier', through='ProductSupplier')
 
     def __str__(self):
-        return "{0} {1}".format(self.name, self.code)
+        return self.name
 
 
 
@@ -61,7 +61,7 @@ class ProductItem(models.Model):
     stock = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return "{0} {1}".format(self.color, self.code)
+        return f"{self.product.name} ({self.color} - {self.code})"
 
 
 class ProductAttribute(models.Model):
