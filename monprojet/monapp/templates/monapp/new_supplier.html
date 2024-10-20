@@ -1,12 +1,12 @@
 {% extends 'monapp/base.html' %}
 {% block title %}
-  Mes commandes en cours
+  Créer un nouveau fournisseur
 {% endblock %}
 {% block contenu %}
 <h2>Créer un nouveau fournisseur</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Créer</button>
+    <button type="submit" class="btn btn-success mt-2">Créer</button>
 </form>
 {% endblock %}

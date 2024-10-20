@@ -109,7 +109,7 @@ urlpatterns = [
         SupplierDetailView.as_view(),
         name="supplier-detail",
     ),
-    path('orders/new/',
+    path('orders/new/<int:supplier_id>/',
         OrderCreateView.as_view(),
         name='order-add'
     ),
@@ -128,4 +128,11 @@ urlpatterns = [
     path('orders/<int:pk>/add-item/',
         OrderItemCreateView.as_view(),
         name='orderitem-add'),
+    path('stock/',
+        StockListView.as_view(),
+        name='stock'),
+    path('stock/sell/<int:pk>/',
+        SellProductView.as_view(),
+        name='sell-product'
+    ),
 ]

@@ -1,0 +1,54 @@
+{% extends 'monapp/base.html' %}
+{% block title %}
+  Gestion des stocks
+{% endblock %}
+{% block contenu %}
+  <h2>Gestion des stocks</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Produit</th>
+        <th>Fournisseur(s)</th>
+        <th>Stock</th>
+        <th>Attributs associés</th>
+        <th>Vendre</th> <!-- Nouvelle colonne pour vendre -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in stock %}
+        {% if item.stock %}
+        <tr>
+          <td>{{ item.code }}</td>
+          <td>{{ item.name }}</td>
+          <td>
+            {% for supplier in item.suppliers.all %}
+              {{ supplier.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              Aucun fournisseur
+            {% endfor %}
+          </td>
+          <td>{{ item.stock }}</td>
+          <td>
+            {% for attribute in item.attributes.all %}
+              <p>{{ attribute.product_attribute.name }} : {{ attribute.value }}</p>
+            {% empty %}
+              <p>Aucun attribut associé</p>
+            {% endfor %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'sell-product' item.id %}">
+              {% csrf_token %}
+              <input type="number" name="quantity" min="1" max="{{ item.stock }}" required>
+              <button type="submit" class="btn btn-danger">Vendre</button>
+            </form>
+          </td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>Total de produits en stock : {{ total_stock }}</p>
+  <p>Prix HT total des produits en stock : {{ total_priceHT }} €</p>
+  <p>Prix TTC total des produits en stock : {{ total_priceTTC }} €</p>
+{% endblock %}

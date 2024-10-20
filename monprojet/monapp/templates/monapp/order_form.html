@@ -6,10 +6,11 @@
 
 {% block contenu %}
   <h2>Créer une nouvelle commande</h2>
-  <form method="post">
+  <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-success mt-2">Créer</button>
+    <button class="btn btn-success mt-2" type="submit">Créer la commande</button>
   </form>
+  
   <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
 {% endblock %}
