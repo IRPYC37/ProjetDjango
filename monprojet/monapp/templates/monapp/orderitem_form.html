@@ -8,8 +8,9 @@
   <h2>Ajouter un produit à la commande {{ order.id }}</h2>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success mt-2">Ajouter</button>
+    {{ order_item_form.as_p }} 
+    <input type="hidden" name="order" value="{{ order.id }}">
+    <button type="submit" class="btn btn-primary">Ajouter le produit</button>
   </form>
   <a href="{% url 'order-detail' order.id %}" class="btn btn-primary mt-2">Retour aux détails de la commande</a>
 {% endblock %}

@@ -31,7 +31,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in order.items.all %}
+      {% for item in order.order_items.all %}  <!-- Utilise le bon related_name ici -->
         <tr>
           <td>{{ item.product.name }}</td>
           <td>{{ item.quantity }}</td>
@@ -41,6 +41,7 @@
       {% endfor %}
     </tbody>
   </table>
+
 
   <a href="{% url 'order-list' %}" class="btn btn-primary mt-2">Retour à la liste des commandes</a>
   <a href="{% url 'order-update' order.id %}" class="btn btn-warning mt-2">Modifier</a>

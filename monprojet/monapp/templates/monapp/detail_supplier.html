@@ -4,6 +4,7 @@
     <p><strong>Name:</strong> {{ supplier.name }}</p>
     <p><strong>Contact info:</strong> {{ supplier.contact_info }}</p>
    
+    <a href="{% url 'order-add' supplier.id %}" class="btn btn-success mt-2" >Créer une commande pour {{ supplier.name }}</a>
     <a href="{% url 'suppliers-list' %}" class="btn btn-primary mt-2">Retour à la liste des fournisseurs</a>
     <a href="{% url 'supplier-update' supplier.id %}" class="btn btn-warning mt-2">Modifier</a>
     <a href="{% url 'supplier-delete' supplier.id %}" class="btn btn-danger mt-2">Supprimer</a>

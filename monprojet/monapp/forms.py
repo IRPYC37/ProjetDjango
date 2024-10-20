@@ -9,9 +9,16 @@ class ContactUsForm(forms.Form):
 
 
 class ProductForm(forms.ModelForm):
+    suppliers = forms.ModelMultipleChoiceField(
+        queryset=Supplier.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = Product
-        exclude = ["price_ttc", "status"]
+        fields = "__all__"
+
 
 
 class ProductItemForm(forms.ModelForm):
@@ -45,9 +52,22 @@ class SupplierForm(forms.ModelForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['supplier', 'status']
+        fields = ['status']
 
 class OrderItemForm(forms.ModelForm):
     class Meta:
         model = OrderItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity']  # Assurez-vous que ces champs sont corrects
+
+    def __init__(self, *args, **kwargs):
+        supplier = kwargs.pop('supplier', None)  # Récupérer le fournisseur si fourni
+        super(OrderItemForm, self).__init__(*args, **kwargs)
+        if supplier:
+            # Filtrer les produits par fournisseur
+            self.fields['product'].queryset = supplier.supplied_products.all()
+
+
+class ProductSupplierForm(forms.ModelForm):
+    class Meta:
+        model = ProductSupplier
+        fields = ['price']

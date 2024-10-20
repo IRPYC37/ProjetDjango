@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.views.generic import *
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login, logout
@@ -18,6 +18,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from .models import Supplier, Product, Order, OrderItem
 from .forms import OrderForm, OrderItemForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -70,7 +71,7 @@ class ProductDetailView(DetailView):
 # Ajout du décorateur login_required à une CBV
 @method_decorator(login_required, name="dispatch")
 class ProductCreateView(CreateView):
-    model = Product
+    model = ProductForm
     form_class = ProductForm
     template_name = "monapp/new_product.html"
 
@@ -79,16 +80,15 @@ class ProductCreateView(CreateView):
         return redirect("product-detail", product.id)
 
 
-# Ajout du décorateur login_required à une CBV
-@method_decorator(login_required, name="dispatch")
+@method_decorator(login_required, name='dispatch')
 class ProductUpdateView(UpdateView):
-    model = Product
-    form_class = ProductForm
+    model = Product  # Utilise le modèle Product ici
+    form_class = ProductForm  # Le formulaire utilisé pour mettre à jour
     template_name = "monapp/update_product.html"
 
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+    def form_valid(self, form):
         product = form.save()
-        return redirect("product-detail", product.id)
+        return redirect("product-detail", product.id)  # Redirection après la mise à jour
 
 
 # Ajout du décorateur login_required à une CBV
@@ -425,20 +425,60 @@ class OrderListView(ListView):
 
 class OrderDetailView(DetailView):
     model = Order
-    template_name = "monapp/order_detail.html"
-    context_object_name = "order"
+    template_name = 'monapp/order_detail.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order_items'] = self.object.order_items.all() 
+        return context
+
 
 class OrderCreateView(CreateView):
     model = Order
     form_class = OrderForm
-    template_name = "monapp/order_form.html"
-    success_url = reverse_lazy("order-list")
+    template_name = 'monapp/order_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        supplier_id = self.kwargs.get('supplier_id')
+        try:
+            supplier = Supplier.objects.get(pk=supplier_id)
+            context['supplier'] = supplier
+            context['order_item_form'] = OrderItemForm(supplier=supplier)
+        except Supplier.DoesNotExist:
+            raise Http404("No Supplier matches the given query.")
+        return context
+
+    def form_valid(self, form):
+        supplier_id = self.kwargs.get('supplier_id')
+
+        try:
+            supplier = Supplier.objects.get(pk=supplier_id)
+        except Supplier.DoesNotExist:
+            raise Http404("No Supplier matches the given query.")
+
+        order = form.save(commit=False)
+        order.supplier = supplier
+        order.save()
+
+        # Au lieu de créer un OrderItem ici, redirige directement vers le détail de la commande
+        return redirect('order-detail', pk=order.pk)
 
 class OrderUpdateView(UpdateView):
     model = Order
     form_class = OrderForm
-    template_name = "monapp/order_update.html"
-    success_url = reverse_lazy("order-list")
+    template_name = 'monapp/order_form.html'
+
+    def form_valid(self, form):
+        order = form.save()
+        if order.status == 'reçue':
+            for item in order.order_items.all():
+                product = item.product
+                product.stock += item.quantity  
+                product.save()
+
+        return redirect('order-detail', pk=order.pk)
+
 
 class OrderDeleteView(DeleteView):
     model = Order
@@ -457,37 +497,51 @@ class OrderItemCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['order'] = get_object_or_404(Order, pk=self.kwargs['pk'])
+        
+        supplier = context['order'].supplier
+        
+        context['order_item_form'] = OrderItemForm(supplier=supplier) 
+        
         return context
-
-    def get_success_url(self):
-        return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
-
-    def form_valid(self, form):
-        form.instance.order = get_object_or_404(Order, pk=self.kwargs['pk'])
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('order-detail', kwargs={'pk': self.kwargs['pk']})
 
 class StockListView(ListView):
-    model = ProductItem
+    model = Product  
     template_name = "monapp/stock.html"
     context_object_name = "stock"
 
     def get_queryset(self):
-        # Obtenir tous les produits
-        product_items = ProductItem.objects.all()
-
-        # Calculer le stock pour chaque produit
-        for product_item in product_items:
+        products = Product.objects.all()
+        for product in products:
             received_orders = OrderItem.objects.filter(
-                product=product_item, order__status='received'
+                product=product, order__status='received'
             )
-            product_item.stock = sum(item.quantity for item in received_orders)
+            product.stock = sum(item.quantity for item in received_orders)
 
-        return product_items
+        return products
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_stock'] = sum([item.stock for item in context['stock']])
+        context['total_priceTTC'] = sum([item.stock * item.price_ttc for item in context['stock']])
+        context['total_priceHT'] = sum([item.stock * item.price_ht for item in context['stock']])
         return context
+    
+class SellProductView(View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        quantity_to_sell = int(request.POST.get('quantity', 0))
+
+        if quantity_to_sell > 0 and quantity_to_sell <= product.stock:
+            product.stock -= quantity_to_sell
+            product.save()
+
+            Sale.objects.create(product=product, quantity=quantity_to_sell)
+
+            messages.success(request, f'{quantity_to_sell} unités vendues de {product.name}. Stock restant : {product.stock}.')
+        else:
+            messages.error(request, 'Quantité invalide.')
+
+        return redirect(reverse('stock'))
